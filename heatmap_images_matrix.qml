@@ -37,11 +37,11 @@ ColumnLayout {
     }
     ColumnLayout {
         id: imageLabelsForMatrixColumn
-        Layout.preferredHeight: parent.height
+        //Layout.preferredHeight: parent.height
         Layout.fillWidth: true
         Repeater {
             id: imageHeaderLabels
-            Layout.fillHeight: true
+            //Layout.fillHeight: true
             //Layout.preferredHeight: parent.height
             model: imageInputsCounter;
             delegate:
@@ -63,6 +63,7 @@ ColumnLayout {
                 Repeater {
                     id: imagesRepeater
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                     model: modelInputsCounter;
                     delegate: {
                         this.delegate = Qt.createComponent(qsTr('pasko.qml'));
