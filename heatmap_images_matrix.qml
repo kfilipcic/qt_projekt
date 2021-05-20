@@ -5,28 +5,22 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 ColumnLayout {
     id: imagesMatrix
-
-    Layout.fillHeight: true
-    Layout.fillWidth: true
-    Layout.alignment: Qt.AlignHCenter
+    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+    Layout.preferredWidth: parent.width
+    Layout.preferredHeight: parent.height
+    clip: true
     spacing: 0
 
-    GridLayout {
+    RowLayout {
         id: modelLabelsForMatrixRow
         Layout.preferredWidth: parent.width
-        Layout.fillWidth: true
-        Layout.alignment: Qt.AlignHCenter
-
-        rows: 1
-
-        //Layout.maximumHeight: 50
+        Layout.fillHeight: true
         Text {
             id: modelHeaderStartingSpace
             text: qsTr('       ')
         }
         Repeater {
             id: modelHeaderLabels
-            Layout.preferredWidth: parent.width
             Layout.fillWidth: true
             model: modelInputsCounter;
             delegate:
@@ -41,34 +35,30 @@ ColumnLayout {
             }
         }
     }
-    GridLayout {
+    ColumnLayout {
         id: imageLabelsForMatrixColumn
-        //Layout.fillWidth: false
-        columns: 1
-        Layout.fillHeight: true
+        Layout.preferredHeight: parent.height
         Layout.fillWidth: true
-        Layout.alignment: Qt.AlignHCenter
         Repeater {
             id: imageHeaderLabels
-            model: imageInputsCounter;
-            Layout.fillWidth: true
             Layout.fillHeight: true
+            //Layout.preferredHeight: parent.height
+            model: imageInputsCounter;
             delegate:
-                GridLayout {
+                RowLayout {
                     id: imageMatrixRow
                     property int currentImageIndex: index;
-                    rows: 1
-                    rowSpacing: 0
-                    columnSpacing: 0
-                    Layout.fillWidth: true
+                    Layout.preferredWidth: parent.width
+                    //Layout.preferredHeight: parent.height
+                    //Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.preferredWidth: parent.width;
-                    Layout.preferredHeight: parent.height;
-                    Layout.alignment: Qt.AlignHCenter
                 Text {
                     text: {
                         qsTr('Image ' + (index+1));
                     }
+                    //Layout.preferredWidth: 20
+                    //Layout.preferredHeight: parent.height
+                    verticalAlignment: Text.AlignVCenter
                 }
                 Repeater {
                     id: imagesRepeater
@@ -85,6 +75,6 @@ ColumnLayout {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:640}
+    D{i:0;autoSize:true;formeditorZoom:0.5;height:480;width:640}
 }
 ##^##*/

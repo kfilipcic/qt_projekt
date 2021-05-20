@@ -9,7 +9,7 @@ Window {
     width: 800
     height: 700
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Heatmap GUI App")
     property int modelInputsCounter: 1;
     property var modelPathTextField;
 
@@ -18,34 +18,27 @@ Window {
     property int browseIndexClicked;
     property var heatmapImagesMatrix: null;
     property var imageFilenamesArray: [];
-    GridLayout {
+    ColumnLayout {
         id: mainAppColumn
+        width: parent.width
+        height: parent.height
         anchors.fill: parent
-        //anchors.rightMargin: 0
-        //anchors.bottomMargin: 0
-        //anchors.leftMargin: 0
-        //anchors.topMargin: 0
-        columns: 1
-        rows: 1
+        clip: true
+        //columns: 1
+        //rows: 2
         GridLayout {
             id: addFilesObjects
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            //Layout.fillHeight: false
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+            //Layout.maximumHeight: window.height * 0.2
+            Layout.fillHeight: true
             columns: 2
-            //anchors.left: parent.left
-            //anchors.right: parent.right
-            //anchors.top: parent.top
-            //anchors.topMargin: 0
-            //Layout.fillWidth: true
-            //Layout.minimumWidth: parent.width / 2
-            //Layout.maximumWidth: parent.width / 2
+            rows: 1
             ColumnLayout {
                 id: columnModelsSelect
-                //Layout.fillWidth: true
-                //Layout.maximumWidth: parent.width / 2
+                Layout.preferredWidth: 50
+                Layout.fillWidth: true
                 ColumnLayout {
-                    //Layout.alignment: Qt.AlignTop
-                    //Layout.fillWidth: true
                     id: columnModelsPathBrowse
                     Text {
                         Layout.fillWidth: true
@@ -56,13 +49,11 @@ Window {
                         minimumPixelSize: 21
                         fontSizeMode: Text.Fit
                         horizontalAlignment: Text.AlignHCenter
-                        //Layout.alignment: Text.AlignHCenter
                     }
                     GridLayout {
                         id: modelPathBrowseRow
                         rows:1
                         rowSpacing: 0
-                        Layout.preferredWidth: parent.width
                         Layout.fillWidth: true
                         Text {
                             id: modelNumberText1
@@ -131,9 +122,8 @@ Window {
             }
             ColumnLayout {
                 id: columnImagesSelect
-                //Layout.fillWidth: true
-                //Layout.minimumWidth: parent.width / 2
-                //Layout.maximumWidth: parent.width / 2
+                Layout.preferredWidth: 50
+                Layout.fillWidth: true
                 ColumnLayout {
                     Layout.fillWidth: true
                     id: columnImagesPathBrowse
@@ -243,6 +233,79 @@ Window {
                }
            }
         }
+/*
+        ColumnLayout {
+            id: imagesMatrix
+            Layout.preferredWidth: parent.width
+            Layout.preferredHeight: parent.height * 0.8
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+    Layout.fillHeight: true
+    Layout.fillWidth: true
+    spacing: 0
+
+    RowLayout {
+        id: modelLabelsForMatrixRow
+        Layout.preferredWidth: parent.width
+        Layout.preferredHeight: parent.height * 0.1
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+        Text {
+            id: modelHeaderStartingSpace
+            text: qsTr('       ')
+        }
+        Repeater {
+            id: modelHeaderLabels
+            Layout.fillWidth: true
+            model: 5;
+            delegate:
+                ColumnLayout {
+                id: modelHeaderLabelsColumnLayout
+                Layout.fillWidth: true
+                Text {
+                    id: modelHeaderText
+                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr('Model ' + (index+1));
+                }
+            }
+        }
+    }
+    ColumnLayout {
+        id: imageLabelsForMatrixColumn
+        Layout.preferredWidth: parent.width
+        Layout.preferredHeight: parent.height
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+        Repeater {
+            id: imageHeaderLabels
+            model: 5;
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            delegate:
+                GridLayout {
+                    id: imageMatrixRow
+                    property int currentImageIndex: index;
+                    rows: 1
+                    rowSpacing: 0
+                    columnSpacing: 0
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                Text {
+                    text: {
+                        qsTr('Image ' + (index+1));
+                    }
+                }
+                Repeater {
+                    id: imagesRepeater
+                    Layout.fillWidth: true
+                    model: 5;
+                    delegate: {
+                        this.delegate = Qt.createComponent(qsTr('pasko.qml'));
+                    }
+                }
+            }
+        }
+    }
+}*/
     }
 }
 

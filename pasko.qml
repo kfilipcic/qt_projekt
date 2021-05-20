@@ -3,9 +3,11 @@ import QtQuick.Layouts 1.3
 
 GridLayout {
     //Layout.preferredWidth: parent.width
+    //Layout.preferredWidth: imageLabelsForMatrixColumn.height
+    //Layout.preferredHeight: imageLabelsForMatrixColumn.height
     Layout.preferredWidth: imageMatrixRow.height
     Layout.preferredHeight: imageMatrixRow.height
-    Layout.alignment: Qt.AlignHCenter
+    //Layout.alignment: Qt.AlignHCenter
     columns: 1
     Image {
         id: matrixImage
@@ -19,8 +21,8 @@ GridLayout {
             //console.log(parent.columnImagesPathBrowse.children[parent.index].children[1]);
             //console.log(Object.keys(modelHeaderLabels.children[0]));
             //console.log(Object.keys(imageHeaderLabels));
-            console.log(imageHeaderLabels);
-            console.log(imageFilenamesArray);
+            //console.log(imageHeaderLabels);
+            //console.log(imageFilenamesArray);
         }
     }
 }
