@@ -19,6 +19,7 @@ Window {
     property int browseIndexClicked;
     property var heatmapImagesMatrix: null;
     property var imageFilenamesArray: [];
+    property var matrixImageMouseAreaVar: null;
     ColumnLayout {
         id: mainAppColumn
         width: parent.width
@@ -28,6 +29,8 @@ Window {
         //columns: 1
         //rows: 2
         Repeater {
+            //Layout.fillHeight: true
+            //Layout.fillWidth: true
             model: ObjectModel {
                 id: mainAppColumnObjectModel
                 //Layout.fillHeight: true
@@ -237,7 +240,6 @@ Window {
                                 var heatmapImagesMatrixComponent = Qt.createComponent(qsTr("heatmap_images_matrix.qml"));
                                 heatmapImagesMatrix = heatmapImagesMatrixComponent.createObject();
                                 mainAppColumnObjectModel.insert(1, heatmapImagesMatrix);
-
                             }
                         }
                     }
@@ -245,10 +247,50 @@ Window {
                 Rectangle {
                     id: informationDockRectangle
                     color: "#e1e1e2"
-                    Layout.alignment: Qt.AlignTop
+                    Layout.alignment: Qt.AlignBottom
                     //Layout.maximumHeight: 50
+                    Layout.minimumHeight: mainAppColumn.height * 0.05
+                    //Layout.preferredHeight: dockInfoColumnLayout.height
+                    Layout.maximumHeight: mainAppColumn.height * 0.05
                     Layout.fillHeight: true
                     Layout.fillWidth: true
+
+                    RowLayout {
+                        id: dockInfoRowLayout
+                        property string sourceImagePath: qsTr("");
+                        property string usedModelForImagePath: qsTr("/home/cec/model.h5");
+                        property string sourceImageWidth: qsTr("");
+                        property string sourceImageHeight: qsTr("");
+                        property string predictedClassForImage: qsTr("default_predicted_class");
+                        property string predictedClassProbabilityForImage: qsTr("0.595959");
+                        property string actualClassForImage: qsTr("default_class");
+                        visible: false
+                        Repeater {
+                            model: 2
+                            delegate: ColumnLayout {
+                                id: dockInfoColumnLayout
+                                Layout.fillHeight: true
+                                Text {
+                                     text: {
+                                         if (!index) qsTr("• Source IMG path: " + dockInfoRowLayout.sourceImagePath);
+                                         else if (index) qsTr("• Predicted class: " + dockInfoRowLayout.predictedClassForImage);
+                                     }
+                                }
+                                Text {
+                                    text: {
+                                        if (!index) qsTr("• Source IMG dimensions: " + dockInfoRowLayout.sourceImageWidth + "x" + dockInfoRowLayout.sourceImageHeight);
+                                        else qsTr("• Prediction probabilty: " + dockInfoRowLayout.predictedClassProbabilityForImage);
+                                    }
+                                }
+                                Text {
+                                    text: {
+                                        if (!index) qsTr("• Model used: " + dockInfoRowLayout.usedModelForImagePath);
+                                        else qsTr("• Actual class: " + dockInfoRowLayout.actualClassForImage);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

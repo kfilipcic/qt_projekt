@@ -5,10 +5,13 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 ColumnLayout {
     id: imagesMatrix
-    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-    Layout.preferredWidth: parent.width
-    Layout.preferredHeight: parent.height
-    clip: true
+    //Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+    Layout.preferredWidth: mainAppColumn.width
+    //Layout.maximumHeight: 50
+    //Layout.preferredHeight: mainAppColumn.height * 0.5
+    Layout.maximumHeight: mainAppColumn.height * 0.5
+    //Layout.fillHeight: true
+    //clip: true
     spacing: 0
 
     RowLayout {
@@ -37,6 +40,7 @@ ColumnLayout {
     }
     ColumnLayout {
         id: imageLabelsForMatrixColumn
+        objectName: qsTr("imageLabelsForMatrixColumn")
         //Layout.preferredHeight: parent.height
         Layout.fillWidth: true
         Repeater {
