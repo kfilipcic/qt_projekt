@@ -15,6 +15,11 @@ RowLayout {
     TextField {
         objectName: qsTr('imagePathTextField')
         Layout.fillWidth: true
+        onEditingFinished: {
+            imageFilenamesArray[currentBrowseIndex] = this.text;
+            browseIndexClicked = currentBrowseIndex;
+            imagePathTextField = this;
+        }
     }
     Button {
         objectName: qsTr('browseImageButton')

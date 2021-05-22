@@ -25,7 +25,7 @@ ColumnLayout {
         Repeater {
             id: modelHeaderLabels
             Layout.fillWidth: true
-            model: modelInputsCounter;
+            model: imageRowsNum;
             delegate:
                 ColumnLayout {
                 id: modelHeaderLabelsColumnLayout
@@ -47,32 +47,10 @@ ColumnLayout {
             id: imageHeaderLabels
             //Layout.fillHeight: true
             //Layout.preferredHeight: parent.height
-            model: imageInputsCounter;
-            delegate:
-                RowLayout {
-                    id: imageMatrixRow
-                    property int currentImageIndex: index;
-                    Layout.preferredWidth: parent.width
-                    //Layout.preferredHeight: parent.height
-                    //Layout.fillWidth: true
-                    Layout.fillHeight: true
-                Text {
-                    text: {
-                        qsTr('Image ' + (index+1));
-                    }
-                    //Layout.preferredWidth: 20
-                    //Layout.preferredHeight: parent.height
-                    verticalAlignment: Text.AlignVCenter
-                }
-                Repeater {
-                    id: imagesRepeater
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    model: modelInputsCounter;
-                    delegate: {
-                        this.delegate = Qt.createComponent(qsTr('pasko.qml'));
-                    }
-                }
+            model: imageColsNum;
+            delegate: {
+                //console.log("index: " + imageHeaderLabels.currentIndex);
+                this.delegate = Qt.createComponent(qsTr("image_matrix_row.qml"));
             }
         }
     }

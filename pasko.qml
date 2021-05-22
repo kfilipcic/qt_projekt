@@ -20,7 +20,10 @@ ColumnLayout {
                 if (mouse.button === Qt.RightButton)
                     contextMenu.popup()
                 else if (mouse.button === Qt.LeftButton) {
-                    imagePopup.open();
+                    var imagePopupComponent = Qt.createComponent(qsTr("popup_image.qml"));
+                    var imagePopupObject = imagePopupComponent.createObject(imagePopupItem);
+                    imagePopupObject.open();
+
                     var imagePopupGlobalCoords = imagePopupItem.mapToItem(windowItem, imagePopup.x, imagePopup.y);
 
                     if (imagePopupGlobalCoords.x + imagePopup.width >= window.width) {
@@ -40,7 +43,8 @@ ColumnLayout {
             }
             onHoveredChanged: {
                 // Save hovered image data so the dock component can show it
-                dockInfoRowLayout.sourceImagePath = imageFilenamesArray[imageMatrixRow.currentImageIndex];
+                if (imageFilenamesArray[imageMatrixRow.currentImageIndex] !== undefined)
+                    dockInfoRowLayout.sourceImagePath = imageFilenamesArray[imageMatrixRow.currentImageIndex];
                 dockInfoRowLayout.sourceImageWidth = matrixImage.sourceSize.width;
                 dockInfoRowLayout.sourceImageHeight = matrixImage.sourceSize.height;
 
@@ -49,50 +53,6 @@ ColumnLayout {
             }
             Item {
                 id: imagePopupItem
-                Popup {
-                    id: imagePopup
-                    width: {
-                        if (window.width < window.height) Math.round(window.width / 1.5)
-                        else Math.round(window.height / 1.5)
-                    }
-                    height: {
-                        if (window.height < window.width) Math.round(window.height / 1.5)
-                        else Math.round(window.width / 1.5)
-                    }
-                    modal: true
-                    focus: true
-                    background: BorderImage {
-                        id: popupImage
-                        source: matrixImage.source
-                        width: imagePopup.width; height: imagePopup.height
-                        border.left: 5; border.top: 5
-                        border.right: 5; border.bottom: 5
-                    }
-                    x: {
-                           var x_popup = Math.round(matrixImage.x + (matrixImage.width / 2) - (width / 2));
-                           x_popup;
-                    }
-                    y: {
-                           var y_popup = Math.round(matrixImage.y + (matrixImage.height / 2) - (height / 2));
-
-                           y_popup;
-                    }
-                }
-            }
-
-            Menu {
-                id: contextMenu
-                MenuItem {
-                    text: "Save image"
-                    onClicked: saveSingleImageDialog.open()
-                }
-                FileDialog {
-                    id: saveSingleImageDialog
-                    folder: shortcuts.home
-                    onAccepted: {
-                        console.log("saveSingleImageDialog onAccepted!");
-                    }
-                }
             }
         }
     }
