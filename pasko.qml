@@ -19,8 +19,24 @@ ColumnLayout {
             onClicked: {
                 if (mouse.button === Qt.RightButton)
                     contextMenu.popup()
-                else if (mouse.button === Qt.LeftButton)
-                    imagePopup.open()
+                else if (mouse.button === Qt.LeftButton) {
+                    imagePopup.open();
+                    var imagePopupGlobalCoords = imagePopupItem.mapToItem(windowItem, imagePopup.x, imagePopup.y);
+
+                    if (imagePopupGlobalCoords.x + imagePopup.width >= window.width) {
+                        imagePopup.x -= (imagePopupGlobalCoords.x + imagePopup.width) - window.width;
+                    }
+                    else if (imagePopupGlobalCoords.x <= 0) {
+                        imagePopup.x += imagePopupGlobalCoords.x;
+                    }
+                    if (imagePopupGlobalCoords.y + imagePopup.height >= window.height) {
+                        imagePopup.y -= (imagePopupGlobalCoords.y + imagePopup.height) - window.height;
+                    }
+                    else if (imagePopupGlobalCoords.y <= 0) {
+                        imagePopup.y += imagePopupGlobalCoords.y;
+                    }
+                }
+
             }
             onHoveredChanged: {
                 // Save hovered image data so the dock component can show it
@@ -31,54 +47,36 @@ ColumnLayout {
                 if (this.containsMouse) dockInfoRowLayout.visible = true;
                 else dockInfoRowLayout.visible = false;
             }
-            Popup {
-                id: imagePopup
-                width: {
-                    if (window.width < window.height) Math.round(window.width / 1.5)
-                    else Math.round(window.height / 1.5)
-                }
-                height: {
-                    if (window.height < window.width) Math.round(window.height / 1.5)
-                    else Math.round(window.width / 1.5)
-                }
-                modal: true
-                focus: true
-                background: BorderImage {
-                    id: popupImage
-                    source: matrixImage.source
-                    width: imagePopup.width; height: imagePopup.height
-                    border.left: 5; border.top: 5
-                    border.right: 5; border.bottom: 5
-                }
-                x: {
-                       var x_popup = Math.round(matrixImage.x + (matrixImage.width / 2) - (width / 2));
-                       console.log(matrixImage.x);
-                       console.log("x_popup: " + x_popup + " popupImage.width: " + width + " window.width: " + window.width);
-                       console.log(this.x);
-                       if (x_popup + width >= window.width) {
-                           x_popup = window.width - width;
-                           console.log("x if");
-                       }
-                       else if (x_popup <= 0) {
-                           x_popup = 0;
-                           console.log("x else if");
-                       }
-                       x_popup;
-                }
-                y: {
-                       console.log(matrixImage.y);
-                       var y_popup = Math.round(matrixImage.y + (matrixImage.height / 2) - (height / 2));
-                       console.log("y_popup: " + y_popup + " popupImage.height: " + height + " window.height: " + window.height);
-                       console.log(this.y);
-                       if (y_popup + height >= window.height) {
-                           y_popup = window.height - height;
-                           console.log("y if");
-                       }
-                       else if (y_popup <= 0) {
-                           y_popup = 0;
-                           console.log("y else if");
-                       }
-                       y_popup;
+            Item {
+                id: imagePopupItem
+                Popup {
+                    id: imagePopup
+                    width: {
+                        if (window.width < window.height) Math.round(window.width / 1.5)
+                        else Math.round(window.height / 1.5)
+                    }
+                    height: {
+                        if (window.height < window.width) Math.round(window.height / 1.5)
+                        else Math.round(window.width / 1.5)
+                    }
+                    modal: true
+                    focus: true
+                    background: BorderImage {
+                        id: popupImage
+                        source: matrixImage.source
+                        width: imagePopup.width; height: imagePopup.height
+                        border.left: 5; border.top: 5
+                        border.right: 5; border.bottom: 5
+                    }
+                    x: {
+                           var x_popup = Math.round(matrixImage.x + (matrixImage.width / 2) - (width / 2));
+                           x_popup;
+                    }
+                    y: {
+                           var y_popup = Math.round(matrixImage.y + (matrixImage.height / 2) - (height / 2));
+
+                           y_popup;
+                    }
                 }
             }
 

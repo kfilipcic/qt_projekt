@@ -20,6 +20,9 @@ Window {
     property var heatmapImagesMatrix: null;
     property var imageFilenamesArray: [];
     property var matrixImageMouseAreaVar: null;
+Item {
+    id: windowItem
+    anchors.fill: parent
     ColumnLayout {
         id: mainAppColumn
         width: parent.width
@@ -296,7 +299,7 @@ Window {
         }
     }
 }
-
+}
 
 
 /*##^##
