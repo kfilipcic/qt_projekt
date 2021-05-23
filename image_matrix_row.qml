@@ -3,29 +3,21 @@ import QtQuick.Layouts 1.3
 
 RowLayout {
     id: imageMatrixRow
-    property int currentImageIndex: index;
-    //Layout.preferredWidth: parent.width
-    //Layout.preferredHeight: parent.height
-    //Layout.fillWidth: true
-    //Layout.fillHeight: true
+    property int currentImageColIndex: index;
     Text {
         text: {
             qsTr('Image ' + (index+1));
         }
-        //Layout.preferredWidth: 20
-        //Layout.preferredHeight: parent.height
         verticalAlignment: Text.AlignVCenter
     }
     Repeater {
         id: imagesRepeater
+        property int currentImageRowIndex: index;
         Layout.fillWidth: true
-        //Layout.fillHeight: true
         model: imageRowsNum;
         delegate: {
-            //console.log("imageFilenamesArray: " + index + ", " + imageFilenamesArray);
-            //console.log("IFA: " + imageFilenamesArray[index] + " IFA undefined? " + (imageFilenamesArray[index] === undefined));
             if (imageFilenamesArray[index] !== undefined) {
-                this.delegate = Qt.createComponent(qsTr('pasko.qml'));
+                this.delegate = Qt.createComponent(qsTr('image.qml'));
             }
         }
     }

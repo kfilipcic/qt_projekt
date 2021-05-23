@@ -13,15 +13,24 @@ Window {
     title: qsTr("Heatmap GUI App")
     property int modelInputsCounter: 1;
     property int imageInputsCounter: 1;
-    property int imageRowsNum;
-    property int imageColsNum;
+    property int browseModelsIndexClicked;
+    property var modelFilenamesArray: [];
     property var modelPathTextField;
 
-    property var imagePathTextField;
+    property int imageRowsNum;
+    property int imageColsNum;
     property int browseIndexClicked;
+    property var imagePathTextField;
     property var heatmapImagesMatrix: null;
     property var imageFilenamesArray: [];
     property var matrixImageMouseAreaVar: null;
+    
+    property var heatmapFilenamesArray: [];
+    property var predictedClassArray: [];
+    property var predictionProbabilityArray: [];
+
+    property var imageColIndex: 0;
+    property var imageRowIndex: 0;
 
     Menu {
         id: contextMenu
@@ -32,8 +41,10 @@ Window {
         FileDialog {
             id: saveSingleImageDialog
             folder: shortcuts.home
+            selectExisting: false
+            nameFilters: qsTr("Image files (*.jpg *.png)")
             onAccepted: {
-                console.log("saveSingleImageDialog onAccepted!");
+                pyMainApp.saveSingleImage(heatmapFilenamesArray[imageRowIndex][imageColIndex] ,this.fileUrl);
             }
         }
     }
@@ -45,9 +56,6 @@ Window {
             width: parent.width
             height: parent.height
             anchors.fill: parent
-            //clip: true
-            //columns: 1
-            //rows: 2
             Repeater {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
@@ -61,7 +69,21 @@ Window {
                     Layout.fillWidth: true
                         Menu {
                             title: qsTr("&File")
-                            Action { text: qsTr("&Export images") }
+                            FileDialog {
+                                id: exportAllImagesFileDialog 
+                                folder: shortcuts.home
+                                selectFolder: true
+                                onAccepted: {
+                                    pyMainApp.exportAllImages(this.fileUrl);
+                                }
+                            }
+
+                            Action { 
+                                text: qsTr("&Export images");
+                                onTriggered: {
+                                    exportAllImagesFileDialog.open()
+                                }
+                            }
                             Action { text: qsTr("&Exit"); onTriggered: Qt.quit() }
                         }
                     }
@@ -69,8 +91,6 @@ Window {
                         id: addFilesObjects
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignTop
-                        //Layout.maximumHeight: window.height * 0.2
-                        //Layout.fillHeight: true
                         columns: 2
                         rows: 1
                         ColumnLayout {
@@ -102,12 +122,15 @@ Window {
                                     TextField {
                                         id: modelPathTextField1
                                         Layout.fillWidth: true
-                                        //Layout.preferredWidth: parent.width * 0.8
+                                        onEditingFinished: {
+                                            browseModelsIndexClicked = 0;
+                                            modelFilenamesArray[browseModelsIndexClicked] = this.text;
+                                            modelPathTextField = modelPathTextField1;
+                                        }
                                     }
                                     Button {
                                         id: browseModelButton1
                                         text: qsTr("Browse...")
-                                        //Layout.preferredWidth: parent.width * 0.2
                                         onClicked: {
                                             modelPathTextField = modelPathTextField1;
                                             browseModels.open();
@@ -118,10 +141,10 @@ Window {
                                     id: browseModels
                                     objectName: qsTr("browseModels")
                                     folder: shortcuts.home
-                                    selectMultiple: true
-                                    //nameFilters: qsTr("*.h5")
+                                    nameFilters: qsTr("*.h5")
                                     onAccepted: {
                                         modelPathTextField.text = this.fileUrl
+                                        modelFilenamesArray[browseModelsIndexClicked] = modelPathTextField.text;
                                     }
                                 }
                             }
@@ -131,30 +154,26 @@ Window {
                                 Button {
                                     id: addAnotherModelButton
                                     Layout.fillWidth: true
-                                    //height: 50
                                     width: parent.width
                                     text: qsTr("Add another model")
                                     onClicked: {
-                                        //console.log("modeInputsCounter: " + modelInputsCounter);
                                         if (modelInputsCounter < 5) {
                                             var modelPathComponent = Qt.createComponent(qsTr("model_path_object.qml"));
                                             var modelPathObject = modelPathComponent.createObject(columnModelsPathBrowse);
-                                            //console.log("created object");
-                                            //console.log("modelInputsCounter before incrementing: " + modelInputsCounter);
                                             modelInputsCounter++;
-                                            //console.log("incremented succ");
 
                                             for (let i = 0; i < modelPathObject.children.length; i++) {
                                                 modelPathObject.children[i].objectName = modelPathObject.children[i].objectName + modelInputsCounter;
-                                                //console.log("for i = " + i);
                                             }
 
                                             // Image text for i-th row
                                             columnModelsPathBrowse.children[modelInputsCounter].children[0].text = modelInputsCounter + qsTr(".");
+                                            columnModelsPathBrowse.children[modelInputsCounter].currentModelsBrowseIndex = modelInputsCounter-1;
 
                                             // Browse button for i-th row
                                             columnModelsPathBrowse.children[modelInputsCounter].children[2].clicked.connect(function() {
                                                 modelPathTextField = modelPathObject.children[1];
+                                                browseModelsIndexClicked = modelPathObject.currentModelsBrowseIndex;
                                                 browseModels.open();
                                             });
                                         }
@@ -179,12 +198,9 @@ Window {
                                     minimumPixelSize: 21
                                     fontSizeMode: Text.Fit
                                     horizontalAlignment: Text.AlignHCenter
-                                    //    anchors.horizontalCenter: parent.horizontalCenter
-                                    //Layout.alignment: Text.AlignHCenter
                                 }
                                 RowLayout {
                                     id: imagePathBrowseRow
-                                    //Layout.preferredWidth: parent.width
                                     Layout.fillWidth: true
                                     Text {
                                         id: imageNumberText1
@@ -196,7 +212,6 @@ Window {
                                         Layout.fillWidth: true
 
                                         onEditingFinished: {
-                                            console.log("editing finished!")
                                             browseIndexClicked = 0;
                                             imageFilenamesArray[browseIndexClicked] = this.text;
                                             imagePathTextField = imagePathTextField1;
@@ -205,20 +220,17 @@ Window {
                                     Button {
                                         id: browseImageButton1
                                         text: qsTr("Browse...")
-                                        //anchors.right: parent
                                         onClicked: {
                                             imagePathTextField =  imagePathTextField1;
                                             browseIndexClicked = 0;
                                             browseImages.open();
                                         }
-                                        //Layout.fillWidth: true
                                     }
                                 }
                                 FileDialog {
                                     id: browseImages
                                     objectName: qsTr("browseImages")
                                     folder: shortcuts.home
-                                    selectMultiple: true
                                     nameFilters: qsTr("Image files (*.jpg *.png)")
                                     onAccepted: {
                                         imagePathTextField.text = this.fileUrl;
@@ -228,11 +240,9 @@ Window {
                             }
                             RowLayout {
                                 id: addAnotherImageButtonRow
-                                //Layout.preferredWidth: parent.width
                                 Layout.fillWidth: true
                                 Button {
                                     id: addAnotherImageButton
-                                    //width: parent.width
                                     Layout.fillWidth: true
                                     text: qsTr("Add another image")
                                     onClicked: {
@@ -247,7 +257,6 @@ Window {
 
                                             // Image number text for i-th row
                                             columnImagesPathBrowse.children[imageInputsCounter].children[0].text = imageInputsCounter + qsTr(".");
-
                                             columnImagesPathBrowse.children[imageInputsCounter].currentBrowseIndex = imageInputsCounter-1;
 
                                             // Browse button for i-th row
@@ -268,22 +277,24 @@ Window {
                             Layout.fillWidth: true
                             Layout.columnSpan: 2
                             Button {
-                                //Layout.alignment: Qt.AlignTop
                                 objectName: qsTr("generateHeatmapsButton")
-                                //Layout.fillWidth: true
                                 text: qsTr("Generate heatmaps")
                                 Layout.fillHeight: true
                                 Layout.fillWidth: true
                                 onClicked: {
                                     imageRowsNum = modelInputsCounter;
                                     imageColsNum = imageInputsCounter;
-                                    //if (heatmapImagesMatrix !== null) mainAppColumnObjectModel.remove(1, 1)
                                     if (heatmapImagesMatrix !== null) mainAppColumnObjectModel.remove(2, 1)
 
                                     var heatmapImagesMatrixComponent = Qt.createComponent(qsTr("heatmap_images_matrix.qml"));
                                     heatmapImagesMatrix = heatmapImagesMatrixComponent.createObject();
-                                    //mainAppColumnObjectModel.insert(1, heatmapImagesMatrix);
                                     mainAppColumnObjectModel.insert(2, heatmapImagesMatrix);
+
+                                    // Create heatmaps and store results to appropriate arrays
+                                    var gradcamDataArray = pyMainApp.loadNewModel(modelFilenamesArray, imageFilenamesArray);
+                                    heatmapFilenamesArray = gradcamDataArray[0];
+                                    predictedClassArray = gradcamDataArray[1];
+                                    predictionProbabilityArray = gradcamDataArray[2];
                                 }
                             }
                         }
@@ -291,28 +302,20 @@ Window {
                     Rectangle {
                         id: informationDockRectangle
                         color: "#e1e1e2"
-                        //Layout.alignment: Qt.AlignBottom
-                        //Layout.maximumHeight: 50
-                        //Layout.minimumHeight: mainAppColumn.height * 0.05
-                        //Layout.preferredHeight: dockInfoColumnLayout.height
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         RowLayout {
                             id: dockInfoRowLayout
                             Layout.fillHeight: true
                             Layout.fillWidth: true
-                            property string sourceImagePath: qsTr("");
-                            property string usedModelForImagePath: qsTr("/home/cec/model.h5");
-                            property string sourceImageWidth: qsTr("");
-                            property string sourceImageHeight: qsTr("");
-                            property string predictedClassForImage: qsTr("default_predicted_class");
-                            property string predictedClassProbabilityForImage: qsTr("0.595959");
-                            property string actualClassForImage: qsTr("default_class");
+                            property string sourceImagePath: qsTr("N/A");
+                            property string usedModelForImagePath: qsTr("N/A");
+                            property string sourceImageWidth: qsTr("N/A");
+                            property string sourceImageHeight: qsTr("N/A");
+                            property string predictedClassForImage: qsTr("N/A");
+                            property string predictedClassProbabilityForImage: qsTr("N/A");
                             visible: false
 
-                            //Layout.alignment: Qt.AlignBottom
-                            //Layout.preferredWidth: parent.width
-                            //Layout.preferredHeight: parent.height
                             Repeater {
                                 model: 2
                                 Layout.fillHeight: true
@@ -326,7 +329,7 @@ Window {
                                         id: dockInfoText1
                                         text: {
                                             informationDockRectangle.Layout.minimumHeight = this.paintedHeight * 4;
-                                            if (!index) qsTr("• Source IMG path: " + dockInfoRowLayout.sourceImagePath);
+                                            if (!index) qsTr("• Source IMG path: " + dockInfoRowLayout.sourceImagePath.replace('file:///', ''));
                                             else if (index) qsTr("• Predicted class: " + dockInfoRowLayout.predictedClassForImage);
                                         }
                                     }
@@ -338,8 +341,7 @@ Window {
                                     }
                                     Text {
                                         text: {
-                                            if (!index) qsTr("• Model used: " + dockInfoRowLayout.usedModelForImagePath);
-                                            else qsTr("• Actual class: " + dockInfoRowLayout.actualClassForImage);
+                                            if (!index) qsTr("• Model used: " + dockInfoRowLayout.usedModelForImagePath.replace('file:///', ''));
                                         }
                                     }
                                 }

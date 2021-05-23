@@ -5,7 +5,6 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
 RowLayout {
-    //Layout.fillHeight: true
     property int currentBrowseIndex;
     Layout.fillWidth: true
     Layout.preferredWidth: parent.width
