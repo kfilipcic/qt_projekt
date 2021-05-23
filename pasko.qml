@@ -24,19 +24,24 @@ ColumnLayout {
                     var imagePopupObject = imagePopupComponent.createObject(imagePopupItem);
                     imagePopupObject.open();
 
-                    var imagePopupGlobalCoords = imagePopupItem.mapToItem(windowItem, imagePopup.x, imagePopup.y);
+                    var imagePopupGlobalCoords = imagePopupItem.mapToItem(windowItem, imagePopupObject.x, imagePopupObject.y);
+                    console.log("x: " + imagePopupGlobalCoords.x + " , y: " + imagePopupGlobalCoords.y);
 
-                    if (imagePopupGlobalCoords.x + imagePopup.width >= window.width) {
-                        imagePopup.x -= (imagePopupGlobalCoords.x + imagePopup.width) - window.width;
+                    if (imagePopupGlobalCoords.x + imagePopupObject.width >= window.width) {
+                        console.log("izlazi van desno")
+                        imagePopupObject.x -= (imagePopupGlobalCoords.x + imagePopupObject.width) - window.width;
                     }
                     else if (imagePopupGlobalCoords.x <= 0) {
-                        imagePopup.x += imagePopupGlobalCoords.x;
+                        console.log("izlazi van lijevo")
+                        imagePopupObject.x += imagePopupGlobalCoords.x;
                     }
-                    if (imagePopupGlobalCoords.y + imagePopup.height >= window.height) {
-                        imagePopup.y -= (imagePopupGlobalCoords.y + imagePopup.height) - window.height;
+                    if (imagePopupGlobalCoords.y + imagePopupObject.height >= window.height) {
+                        console.log("izlazi van gore")
+                        imagePopupObject.y -= (imagePopupGlobalCoords.y + imagePopupObject.height) - window.height;
                     }
                     else if (imagePopupGlobalCoords.y <= 0) {
-                        imagePopup.y += imagePopupGlobalCoords.y;
+                        console.log("izlazi van dolje")
+                        imagePopupObject.y += imagePopupGlobalCoords.y;
                     }
                 }
 

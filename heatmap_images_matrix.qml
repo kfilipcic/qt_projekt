@@ -9,15 +9,15 @@ ColumnLayout {
     Layout.preferredWidth: mainAppColumn.width
     //Layout.maximumHeight: 50
     //Layout.preferredHeight: mainAppColumn.height * 0.5
-    Layout.maximumHeight: mainAppColumn.height * 0.5
-    //Layout.fillHeight: true
+    Layout.maximumHeight: mainAppColumn.height - informationDockRectangle.height
+    Layout.fillHeight: true
     //clip: true
     spacing: 0
 
     RowLayout {
         id: modelLabelsForMatrixRow
         Layout.preferredWidth: parent.width
-        Layout.fillHeight: true
+        //Layout.fillHeight: true
         Text {
             id: modelHeaderStartingSpace
             text: qsTr('       ')

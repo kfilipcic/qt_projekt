@@ -8,7 +8,7 @@ import QtQml.Models 2.3
 Window {
     id: window
     width: 800
-    height: 700
+    height: 1000
     visible: true
     title: qsTr("Heatmap GUI App")
     property int modelInputsCounter: 1;
@@ -22,6 +22,7 @@ Window {
     property var heatmapImagesMatrix: null;
     property var imageFilenamesArray: [];
     property var matrixImageMouseAreaVar: null;
+
     Menu {
         id: contextMenu
         MenuItem {
@@ -48,18 +49,28 @@ Window {
             //columns: 1
             //rows: 2
             Repeater {
-                //Layout.fillHeight: true
-                //Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.fillWidth: true
                 model: ObjectModel {
                     id: mainAppColumnObjectModel
-                    //Layout.fillHeight: true
-                    //Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    MenuBar {
+                        id: topMenu
+
+                    Layout.fillWidth: true
+                        Menu {
+                            title: qsTr("&File")
+                            Action { text: qsTr("&Export images") }
+                            Action { text: qsTr("&Exit"); onTriggered: Qt.quit() }
+                        }
+                    }
                     GridLayout {
                         id: addFilesObjects
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignTop
                         //Layout.maximumHeight: window.height * 0.2
-                        Layout.fillHeight: true
+                        //Layout.fillHeight: true
                         columns: 2
                         rows: 1
                         ColumnLayout {
@@ -266,11 +277,13 @@ Window {
                                 onClicked: {
                                     imageRowsNum = modelInputsCounter;
                                     imageColsNum = imageInputsCounter;
-                                    if (heatmapImagesMatrix !== null) mainAppColumnObjectModel.remove(1, 1)
+                                    //if (heatmapImagesMatrix !== null) mainAppColumnObjectModel.remove(1, 1)
+                                    if (heatmapImagesMatrix !== null) mainAppColumnObjectModel.remove(2, 1)
 
                                     var heatmapImagesMatrixComponent = Qt.createComponent(qsTr("heatmap_images_matrix.qml"));
                                     heatmapImagesMatrix = heatmapImagesMatrixComponent.createObject();
-                                    mainAppColumnObjectModel.insert(1, heatmapImagesMatrix);
+                                    //mainAppColumnObjectModel.insert(1, heatmapImagesMatrix);
+                                    mainAppColumnObjectModel.insert(2, heatmapImagesMatrix);
                                 }
                             }
                         }
@@ -278,15 +291,16 @@ Window {
                     Rectangle {
                         id: informationDockRectangle
                         color: "#e1e1e2"
-                        Layout.alignment: Qt.AlignBottom
+                        //Layout.alignment: Qt.AlignBottom
                         //Layout.maximumHeight: 50
-                        Layout.minimumHeight: mainAppColumn.height * 0.05
+                        //Layout.minimumHeight: mainAppColumn.height * 0.05
                         //Layout.preferredHeight: dockInfoColumnLayout.height
-                        Layout.maximumHeight: mainAppColumn.height * 0.05
-                        Layout.fillHeight: true
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         RowLayout {
                             id: dockInfoRowLayout
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
                             property string sourceImagePath: qsTr("");
                             property string usedModelForImagePath: qsTr("/home/cec/model.h5");
                             property string sourceImageWidth: qsTr("");
@@ -295,13 +309,23 @@ Window {
                             property string predictedClassProbabilityForImage: qsTr("0.595959");
                             property string actualClassForImage: qsTr("default_class");
                             visible: false
+
+                            //Layout.alignment: Qt.AlignBottom
+                            //Layout.preferredWidth: parent.width
+                            //Layout.preferredHeight: parent.height
                             Repeater {
                                 model: 2
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
                                 delegate: ColumnLayout {
                                     id: dockInfoColumnLayout
+                                    Layout.minimumHeight: informationDockRectangle.Layout.minimumHeight
                                     Layout.fillHeight: true
+                                    Layout.fillWidth: true
                                     Text {
+                                        id: dockInfoText1
                                         text: {
+                                            informationDockRectangle.Layout.minimumHeight = this.paintedHeight * 4;
                                             if (!index) qsTr("• Source IMG path: " + dockInfoRowLayout.sourceImagePath);
                                             else if (index) qsTr("• Predicted class: " + dockInfoRowLayout.predictedClassForImage);
                                         }

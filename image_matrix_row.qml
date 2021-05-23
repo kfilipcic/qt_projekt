@@ -7,7 +7,7 @@ RowLayout {
     //Layout.preferredWidth: parent.width
     //Layout.preferredHeight: parent.height
     //Layout.fillWidth: true
-    Layout.fillHeight: true
+    //Layout.fillHeight: true
     Text {
         text: {
             qsTr('Image ' + (index+1));
@@ -19,7 +19,7 @@ RowLayout {
     Repeater {
         id: imagesRepeater
         Layout.fillWidth: true
-        Layout.fillHeight: true
+        //Layout.fillHeight: true
         model: imageRowsNum;
         delegate: {
             //console.log("imageFilenamesArray: " + index + ", " + imageFilenamesArray);
