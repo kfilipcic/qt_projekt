@@ -46,9 +46,9 @@ ColumnLayout {
             onHoveredChanged: {
                 // Save hovered image data so the dock component can show it
                 dockInfoRowLayout.sourceImagePath = imageFilenamesArray[imageMatrixRow.currentImageColIndex];
-                dockInfoRowLayout.predictedClassForImage = predictedClassArray[imageMatrixRow.currentImageColIndex][index];
-                dockInfoRowLayout.predictedClassProbabilityForImage = predictionProbabilityArray[imageMatrixRow.currentImageColIndex][index];
-                dockInfoRowLayout.usedModelForImagePath = modelFilenamesArray[imageMatrixRow.currentImageColIndex];
+                dockInfoRowLayout.predictedClassForImage = predictedClassArray[index][imageMatrixRow.currentImageColIndex];
+                dockInfoRowLayout.predictedClassProbabilityForImage = predictionProbabilityArray[index][imageMatrixRow.currentImageColIndex];
+                dockInfoRowLayout.usedModelForImagePath = modelFilenamesArray[index];
 
                 dockInfoRowLayout.sourceImageWidth = matrixImage.sourceSize.width;
                 dockInfoRowLayout.sourceImageHeight = matrixImage.sourceSize.height;

@@ -21,8 +21,13 @@ from PySide2.QtCore import QUrl, QObject, Slot, Signal
 MAX_MODELS_NUM = 5
 MAX_IMAGES_NUM = 5
 
+class_labels = {0: {'side':'side_left', 'cast':'no_cast', 'projection':'projection_ap', 'metal':'no_metal', 'osteopenia':'no_osteopenia', 'fracture':'fracture_zero', 'fracture_binary':'no_fracture'},
+                1: {'side':'side_right', 'cast':'cast', 'projection':'projection_lat', 'metal':'metal', 'osteopenia':'osteopenia', 'fracture':'fracture_one', 'fracture_binary':'fracture'},
+                2: {'fracture':'fracture_multiple'}}   
+class_labels_animals = {0: 'cane', 1:'cavallo', 2:'elefante', 3:'farfalla', 4:'gallina', 5:'gatto', 6:'mucca', 7:'pecora', 8:'ragno', 9:'scoiattolo'}
+
 def determine_criterium_by_model_filename(model_filename):
-    criteriums = ['fracture_binary', 'fracture', 'metal', 'osteopenia', 'cast', 'side', 'projection']
+    criteriums = ['fracture_binary', 'fracture', 'metal', 'osteopenia', 'cast', 'side', 'projection', 'animals']
     for crit in criteriums:
         if crit in model_filename:
             return crit
@@ -42,10 +47,12 @@ class QmlFunctions(QObject):
 
     @Slot(list, list, result=list)
     def loadNewModel(str, model_paths, img_paths):
+        model_paths = list(filter(None, model_paths))
+        img_paths = list(filter(None, img_paths))
         # Initialize None 2D arrays where wanted data will be stored and then return to QML file
-        heatmap_images_fnames_array = [[None for i in range(len(model_paths))] for j in range(len(img_paths))]
-        predicted_class_array = [[None for i in range(len(model_paths))] for j in range(len(img_paths))]
-        prediction_probability_array = [[None for i in range(len(model_paths))] for j in range(len(img_paths))]
+        heatmap_images_fnames_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+        predicted_class_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+        prediction_probability_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
 
         # From model paths given in the GUI, load the models and use them
         # to generate heatmaps (using images also specified through the GUI)
@@ -86,7 +93,10 @@ class QmlFunctions(QObject):
                         classes = 1
                         # Unless it isn't
                         if model.layers[-1].get_config()['activation'] == 'softmax':
-                            classes = 3
+                            if 'animals' in criterium:
+                                classes = 10
+                            elif 'fracture' in criterium:
+                                classes = 3
                         # Superimpose the heatmap on original image,
                         # save those images, then store prediction and image
                         # data to previously initialized empty (None) arrays

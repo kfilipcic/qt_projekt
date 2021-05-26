@@ -27,7 +27,8 @@ keras = tf.keras
 
 class_labels = {0: {'side':'side_left', 'cast':'no_cast', 'projection':'projection_ap', 'metal':'no_metal', 'osteopenia':'no_osteopenia', 'fracture':'fracture_zero', 'fracture_binary':'no_fracture'},
                 1: {'side':'side_right', 'cast':'cast', 'projection':'projection_lat', 'metal':'metal', 'osteopenia':'osteopenia', 'fracture':'fracture_one', 'fracture_binary':'fracture'},
-                2: {'fracture':'fracture_multiple'}}
+                2: {'fracture':'fracture_multiple'}}   
+class_labels_animals = {0: 'cane', 1:'cavallo', 2:'elefante', 3:'farfalla', 4:'gallina', 5:'gatto', 6:'mucca', 7:'pecora', 8:'ragno', 9:'scoiattolo'}
 
 def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None):
     # First, we create a model that maps the input image to the activations
@@ -101,13 +102,19 @@ def apply_heatmap_to_image(img_path, heatmap, preds, criterium, classes):
         
     prob_str = str(probability_of_predicted_class)
     prob_str = prob_str[:8]
-    heatmap_image_fname = 'pred_cls_' + class_labels[predicted_class][criterium] + '_' + prob_str + '_' + img_fname + '_heatmap.jpg'
+    if criterium == 'animals':
+        heatmap_image_fname = 'pred_cls_' + class_labels_animals[predicted_class] + '_' + prob_str + '_' + img_fname + '_heatmap.jpg'
+    else:
+        heatmap_image_fname = 'pred_cls_' + class_labels[predicted_class][criterium] + '_' + prob_str + '_' + img_fname + '_heatmap.jpg'
 
     if not os.path.isdir('heatmap_images'):
         os.mkdir('heatmap_images')
     superimposed_img.save('./heatmap_images/' + heatmap_image_fname)
 
-    return './heatmap_images/' + heatmap_image_fname, class_labels[predicted_class][criterium], prob_str
+    if criterium == 'animals':
+        return './heatmap_images/' + heatmap_image_fname, class_labels_animals[predicted_class], prob_str
+    else:
+        return './heatmap_images/' + heatmap_image_fname, class_labels[predicted_class][criterium], prob_str
 
 def get_last_conv_layer_name(model):
     for idx in reversed(range(len(model.layers))):
