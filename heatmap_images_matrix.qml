@@ -7,6 +7,7 @@ ColumnLayout {
     id: imagesMatrix
     Layout.preferredWidth: mainAppColumn.width
     Layout.maximumHeight: mainAppColumn.height - informationDockRectangle.height
+    Layout.preferredWidth: mainAppColumn.width
     Layout.fillHeight: true
     spacing: 0
 
@@ -45,4 +46,5 @@ ColumnLayout {
             }
         }
     }
+
 }
