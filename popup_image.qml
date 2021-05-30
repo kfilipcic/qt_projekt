@@ -4,12 +4,12 @@ import QtQuick.Controls 2.5
 Popup {
     id: imagePopup
     width: {
-        if (window.width < window.height) Math.round(window.width / 1.5)
-        else Math.round(window.height / 1.5)
+        if (window.width < window.height) Math.round(window.width * 0.95)
+        else Math.round(window.height * 0.95)
     }
     height: {
-        if (window.height < window.width) Math.round(window.height / 1.5)
-        else Math.round(window.width / 1.5)
+        if (window.height < window.width) Math.round(window.height * 0.95)
+        else Math.round(window.width * 0.95)
     }
     modal: true
     focus: true
@@ -18,6 +18,7 @@ Popup {
         source: matrixImage.source
         width: imagePopup.width; height: imagePopup.height
     }
+    /*
     x: {
         if (matrixImage != null) {
             var x_popup = Math.round(matrixImage.x + (matrixImage.width / 2) - (width / 2));
@@ -30,4 +31,5 @@ Popup {
             y_popup;
         }
     }
+    */
 }

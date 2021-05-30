@@ -8,23 +8,15 @@ import QtQml.Models 2.3
 Rectangle {
     id: informationDockRectangle
     Layout.alignment: Qt.AlignBottom
-    //Layout.preferredHeight: resultsPageColumnLayout.height * 0.3
-    //Layout.maximumHeight: resultsPageColumnLayout.height * 0.3
-    //Layout.fillHeight: true
-    //anchors.fill: parent
     color: "#e1e1e2"
     RowLayout {
         id: dockInfoRowLayout
-        //Layout.fillHeight: true
-        //Layout.fillWidth: true
         property string sourceImagePath: qsTr("N/A");
         property string usedModelForImagePath: qsTr("N/A");
         property string sourceImageWidth: qsTr("N/A");
         property string sourceImageHeight: qsTr("N/A");
         property string predictedClassForImage: qsTr("N/A");
         property string predictedClassProbabilityForImage: qsTr("N/A");
-
-        //visible: false
 
         Repeater {
             model: 2

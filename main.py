@@ -5,10 +5,10 @@ import shutil
 from distutils.dir_util import copy_tree
 
 # Needed libraries for generating & storing heatmap images
-#import gradcam
-#import tensorflow as tf
-#import numpy as np
-#import PIL
+import gradcam
+import tensorflow as tf
+import numpy as np
+import PIL
 
 # Qt libraries
 from PySide2.QtGui import QGuiApplication
@@ -39,35 +39,28 @@ class TableModel(qtc.QAbstractTableModel):
 
     def __init__(self, parent=None, *args):
         super(TableModel, self).__init__()
-        print("TableModel init() function!") 
 
     def rowCount(self, parent=qtc.QModelIndex()):
-        print("rowCount: ", len(QmlFunctions.img_paths))
         return len(QmlFunctions.img_paths)
 
     def columnCount(self, parent=qtc.QModelIndex()):
-        print("columnCount: ", len(QmlFunctions.model_paths))
         return len(QmlFunctions.model_paths)
     
     def data(self, index, role=Qt.DisplayRole):
-        print("TableModel data() function!") 
         i = index.row()
         j = index.column()
-        print("i: ", i, " j: ", j)
-        # if role == Qt.DisplayRole or role == TableModel.NameRole: 
         if role == TableModel.NameRole: 
             return '({0}, {1})'.format(i, j)
         elif role == TableModel.ImageRole:
-            print(QmlFunctions.heatmap_images_fnames_array)
-            return QmlFunctions.heatmap_images_fnames_array[i-1][j-1]
+            return QmlFunctions.heatmap_images_fnames_array[j-1][i-1]
         elif role == TableModel.ImagePathRole:
             return QmlFunctions.img_paths[i-1]
         elif role == TableModel.ModelPathRole:
             return QmlFunctions.model_paths[j-1]
         elif role == TableModel.PredictedClassRole:
-            return QmlFunctions.predicted_class_array[i-1][j-1]
+            return QmlFunctions.predicted_class_array[j-1][i-1]
         elif role == TableModel.PredictionProbabilityRole:
-            return QmlFunctions.prediction_probability_array[i-1][j-1]
+            return QmlFunctions.prediction_probability_array[j-1][i-1]
         else:
             return QtCore.QVariant()
 
@@ -109,82 +102,92 @@ class QmlFunctions(QObject):
         dest_dir = dest_dir.replace('file:///', '')
         copy_tree('./heatmap_images/', dest_dir)
 
+#    @Slot(list, list, result=list)
+#    def loadNewModel(str, model_paths, img_paths):
+#        #print("loadNewModel func python")
+#        QmlFunctions.model_paths = model_paths
+#        QmlFunctions.img_paths = img_paths
+#        print(model_paths)
+#        print(img_paths)
+#
+#        QmlFunctions.heatmap_images_fnames_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+#        QmlFunctions.predicted_class_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+#        QmlFunctions.prediction_probability_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+#
+#        for i, model in enumerate(model_paths):
+#            if model is None:
+#                continue
+#            elif model == '':
+#                continue
+#            for j, img in enumerate(img_paths):
+#                if img is None:
+#                    continue
+#                elif img == '':
+#                    continue
+#                QmlFunctions.heatmap_images_fnames_array[i][j] = img
+#                QmlFunctions.predicted_class_array[i][j] = 'predicted class example'
+#                QmlFunctions.prediction_probability_array[i][j] = 0.69
+#                
+#        return [QmlFunctions.heatmap_images_fnames_array, QmlFunctions.predicted_class_array, QmlFunctions.prediction_probability_array]
     @Slot(list, list, result=list)
     def loadNewModel(str, model_paths, img_paths):
-        print("loadNewModel func python")
-        QmlFunctions.model_paths = model_paths
-        QmlFunctions.img_paths = img_paths
-
+        QmlFunctions.model_paths = list(filter(None, model_paths))
+        QmlFunctions.img_paths = list(filter(None, img_paths))
+        # Initialize None 2D arrays where wanted data will be stored and then return to QML file
         QmlFunctions.heatmap_images_fnames_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
         QmlFunctions.predicted_class_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
         QmlFunctions.prediction_probability_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
 
-        for i, model in enumerate(model_paths):
-            for j, img in enumerate(img_paths):
-                QmlFunctions.heatmap_images_fnames_array[i][j] = img
-                QmlFunctions.predicted_class_array[i][j] = 'predicted class example'
-                QmlFunctions.prediction_probability_array[i][j] = 0.69
-                
-        return [QmlFunctions.heatmap_images_fnames_array, QmlFunctions.predicted_class_array, QmlFunctions.prediction_probability_array]
+        # From model paths given in the GUI, load the models and use them
+        # to generate heatmaps (using images also specified through the GUI)
+        for i, model_path in enumerate(model_paths):
+            if model_path is not None:
+                model_path = model_path.replace('file:///', '')
+                model_name = model_path.split('/')[-1]
 
-#    def loadNewModel(str, model_paths, img_paths):
-#        model_paths = list(filter(None, model_paths))
-#        img_paths = list(filter(None, img_paths))
-#        # Initialize None 2D arrays where wanted data will be stored and then return to QML file
-#        heatmap_images_fnames_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
-#        predicted_class_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
-#        prediction_probability_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
-#
-#        # From model paths given in the GUI, load the models and use them
-#        # to generate heatmaps (using images also specified through the GUI)
-#        for i, model_path in enumerate(model_paths):
-#            if model_path is not None:
-#                model_path = model_path.replace('file:///', '')
-#                model_name = model_path.split('/')[-1]
-#
-#                # Find out for which criteria is the model trained for
-#                # (based on model filename)
-#                criterium = determine_criterium_by_model_filename(model_name)
-#
-#                # Load i-th model
-#                model = gradcam.load_model(model_path, compile=False)
-#                # Last convolutional layer of the model is needed in order to
-#                # use the GradCAM method which generates heatmaps
-#                last_conv_layer_name = gradcam.get_last_conv_layer_name(model)
-#                # Input model shape is also needed in order to generate heatmaps
-#                MODEL_INPUT_DIMS = model.layers[0].input_shape[0][1]
-#
-#                # For i-th model, generate heatmaps for all input images
-#                for j, img_path in enumerate(img_paths):
-#                    if img_path is not None:
-#                        img_path = img_path.replace('file:///', '')
-#
-#                        # Load j-th image and process it for GradCAM method 
-#                        image = np.array(PIL.Image.open(img_path))
-#                        image = tf.cast(image, dtype = tf.float32) #Necessity otherwise really bad practice
-#                        image = tf.image.resize(image, [MODEL_INPUT_DIMS, MODEL_INPUT_DIMS], method = 'lanczos3', preserve_aspect_ratio=True) 
-#                        image = image / 255.
-#                        image = np.expand_dims(image, axis=0)
-#
-#                        # Create heatmap for j-th image
-#                        heatmap = gradcam.make_gradcam_heatmap(image, model, last_conv_layer_name)
-#                        # Make predictions for j-th image using i-th model
-#                        preds = model.predict(image)
-#                        # Binary classification by default
-#                        classes = 1
-#                        # Unless it isn't
-#                        if model.layers[-1].get_config()['activation'] == 'softmax':
-#                            if 'animals' in criterium:
-#                                classes = 10
-#                            elif 'fracture' in criterium:
-#                                classes = 3
-#                        # Superimpose the heatmap on original image,
-#                        # save those images, then store prediction and image
-#                        # data to previously initialized empty (None) arrays
-#                        heatmap_images_fnames_array[i][j], predicted_class_array[i][j], prediction_probability_array[i][j] = gradcam.apply_heatmap_to_image(img_path, heatmap, preds, criterium, classes)
-#
-#        # Send stored data back to QML
-#        return [heatmap_images_fnames_array, predicted_class_array, prediction_probability_array]
+                # Find out for which criteria is the model trained for
+                # (based on model filename)
+                criterium = determine_criterium_by_model_filename(model_name)
+
+                # Load i-th model
+                model = gradcam.load_model(model_path, compile=False)
+                # Last convolutional layer of the model is needed in order to
+                # use the GradCAM method which generates heatmaps
+                last_conv_layer_name = gradcam.get_last_conv_layer_name(model)
+                # Input model shape is also needed in order to generate heatmaps
+                MODEL_INPUT_DIMS = model.layers[0].input_shape[0][1]
+
+                # For i-th model, generate heatmaps for all input images
+                for j, img_path in enumerate(img_paths):
+                    if img_path is not None:
+                        img_path = img_path.replace('file:///', '')
+
+                        # Load j-th image and process it for GradCAM method 
+                        image = np.array(PIL.Image.open(img_path))
+                        image = tf.cast(image, dtype = tf.float32) #Necessity otherwise really bad practice
+                        image = tf.image.resize(image, [MODEL_INPUT_DIMS, MODEL_INPUT_DIMS], method = 'lanczos3', preserve_aspect_ratio=True) 
+                        image = image / 255.
+                        image = np.expand_dims(image, axis=0)
+
+                        # Create heatmap for j-th image
+                        heatmap = gradcam.make_gradcam_heatmap(image, model, last_conv_layer_name)
+                        # Make predictions for j-th image using i-th model
+                        preds = model.predict(image)
+                        # Binary classification by default
+                        classes = 1
+                        # Unless it isn't
+                        if model.layers[-1].get_config()['activation'] == 'softmax':
+                            if 'animals' in criterium:
+                                classes = 10
+                            elif 'fracture' in criterium:
+                                classes = 3
+                        # Superimpose the heatmap on original image,
+                        # save those images, then store prediction and image
+                        # data to previously initialized empty (None) arrays
+                        QmlFunctions.heatmap_images_fnames_array[i][j], QmlFunctions.predicted_class_array[i][j], QmlFunctions.prediction_probability_array[i][j] = gradcam.apply_heatmap_to_image(img_path, heatmap, preds, criterium, classes)
+
+        # Send stored data back to QML
+        return [QmlFunctions.heatmap_images_fnames_array, QmlFunctions.predicted_class_array, QmlFunctions.prediction_probability_array]
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
@@ -192,14 +195,16 @@ if __name__ == "__main__":
     app.setOrganizationDomain("qt_projekt")
     engine = QQmlApplicationEngine()
     context = engine.rootContext()
+
+    tablemodel = TableModel()
+    context.setContextProperty('tablemodel', tablemodel)
+
     context.setContextProperty("main", engine)
     engine.load(os.path.join(os.path.dirname(__file__), "main.qml"))
 
     qmlFunctions = QmlFunctions()
     context.setContextProperty("pyMainApp", qmlFunctions)
 
-    tablemodel = TableModel()
-    engine.rootContext().setContextProperty('tablemodel', tablemodel)
 
     if not engine.rootObjects():
         sys.exit(-1)

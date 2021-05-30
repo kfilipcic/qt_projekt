@@ -111,8 +111,13 @@ def apply_heatmap_to_image(img_path, heatmap, preds, criterium, classes):
         os.mkdir('heatmap_images')
     superimposed_img.save('./heatmap_images/' + heatmap_image_fname)
 
+
     if criterium == 'animals':
-        return './heatmap_images/' + heatmap_image_fname, class_labels_animals[predicted_class], prob_str
+        heatmap_path = os.path.join(os.getcwd(), os.path.normpath(os.path.join('heatmap_images', heatmap_image_fname)))
+        heatmap_path = heatmap_path.replace('\\', '/')
+        heatmap_path = 'file:///' + heatmap_path
+        print(heatmap_path)
+        return heatmap_path, class_labels_animals[predicted_class], prob_str
     else:
         return './heatmap_images/' + heatmap_image_fname, class_labels[predicted_class][criterium], prob_str
 

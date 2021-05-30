@@ -1,31 +1,26 @@
 import QtQuick 2.15
-import QtQuick.Window 2.15
-import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import QtQml.Models 2.3
 
 TableView {
     id: idTableView
-    //rowSpacing: 10
-    //columnSpacing: 10
-    Layout.alignment: Qt.AlignTop
-    //clip: true
-    //Layout.preferredHeight: resultsPageColumnLayout.height * 0.7
-    //Layout.maximumHeight: resultsPageColumnLayout.height * 0.7
-    Layout.fillWidth: true
     model: tablemodel
+    rowSpacing: 10
+    columnSpacing: 10
+    Layout.alignment: Qt.AlignTop
+    clip: true
+    Layout.fillWidth: true
+    Layout.fillHeight: true
+    columnWidthProvider: function (column) { 
+        return window.width / tablemodel.columnCount();
+    }
+    rowHeightProvider: function (row) { 
+        return window.height / tablemodel.rowCount(); 
+    }
     delegate: Image {
         id: matrixImage 
         source: displayImage
         fillMode: Image.PreserveAspectFit
-        width: 64
-        height: 64
-        scale: 0.5
-        //Layout.fillWidth: true
-        //Layout.fillHeight: true
-        //width: parent.width / parent.columnCount
-        //height: parent.height / parent.rowCount
         MouseArea {
             id: matrixImageMouseArea
             acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -33,8 +28,12 @@ TableView {
             hoverEnabled: true
             onClicked: {
                 if (mouse.button === Qt.RightButton) {
-                    imageColIndex = idTableView.index.column();
-                    imageRowIndex = idTableView.index.row();
+                    if (index > tablemodel.rowCount()-1) {
+                        imageRowIndex = index % tablemodel.rowCount();
+                    } else {
+                        imageRowIndex = index;
+                    }
+                    imageColIndex = parseInt(index / tablemodel.rowCount());
                     contextMenu.popup();
                 }
                 else if (mouse.button === Qt.LeftButton) {
@@ -42,36 +41,27 @@ TableView {
                     var imagePopupObject = imagePopupComponent.createObject(imagePopupItem);
                     imagePopupObject.open();
 
-                    var imagePopupGlobalCoords = imagePopupItem.mapToItem(firstPage, imagePopupObject.x, imagePopupObject.y);
+                    imagePopupObject.x -= (imagePopupObject.width + idTableView.columnSpacing) * (index / tablemodel.columnCount() + 1);
+                    imagePopupObject.x += Math.round(window.width / 2) - Math.round(imagePopupObject.width / 2);
 
-                    if (imagePopupGlobalCoords.x + imagePopupObject.width >= window.width) {
-                        imagePopupObject.x -= (imagePopupGlobalCoords.x + imagePopupObject.width) - window.width;
-                    }
-                    else if (imagePopupGlobalCoords.x <= 0) {
-                        imagePopupObject.x += imagePopupGlobalCoords.x;
-                    }
-                    if (imagePopupGlobalCoords.y + imagePopupObject.height >= window.height) {
-                        imagePopupObject.y -= (imagePopupGlobalCoords.y + imagePopupObject.height) - window.height;
-                    }
-                    else if (imagePopupGlobalCoords.y <= 0) {
-                        imagePopupObject.y += imagePopupGlobalCoords.y;
-                    }
+                    imagePopupObject.y -= (imagePopupObject.height + idTableView.rowSpacing) * ((index+1) % tablemodel.rowCount() + 1);
+                    imagePopupObject.y += Math.round(window.height / 2) - Math.round(imagePopupObject.height / 2);
                 }
             }
             onHoveredChanged: {
                 // Save hovered image data so the dock component can show it
-                resultsPageObjectModel.children[1].children[0]; 
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0]; 
 
-                resultsPageObjectModel.children[1].children[0].sourceImagePath = imagePath;
-                resultsPageObjectModel.children[1].children[0].usedModelForImagePath = modelPath;
-                resultsPageObjectModel.children[1].children[0].predictedClassForImage = predictedClass;
-                resultsPageObjectModel.children[1].children[0].predictedClassProbabilityForImage = classProbability;
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0].sourceImagePath = imagePath;
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0].usedModelForImagePath = modelPath;
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0].predictedClassForImage = predictedClass;
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0].predictedClassProbabilityForImage = classProbability;
 
-                resultsPageObjectModel.children[1].children[0].sourceImageWidth = matrixImage.sourceSize.width;
-                resultsPageObjectModel.children[1].children[0].sourceImageHeight = matrixImage.sourceSize.height;
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0].sourceImageWidth = matrixImage.sourceSize.width;
+                resultsPageObject.resultsPageObjectModelProp.children[1].children[0].sourceImageHeight = matrixImage.sourceSize.height;
 
-                if (this.containsMouse) resultsPageObjectModel.children[1].children[0].visible = true;
-                else resultsPageObjectModel.children[1].children[0].visible = false;
+                if (this.containsMouse) resultsPageObject.resultsPageObjectModelProp.children[1].children[0].visible = true;
+                else resultsPageObject.resultsPageObjectModelProp.children[1].children[0].visible = false;
             }
             Item {
                 id: imagePopupItem
