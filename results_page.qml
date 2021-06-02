@@ -9,8 +9,8 @@ Page {
     id: resultsPage
     property alias resultsPageObjectModelProp: objectModelRepeater.model
     //anchors.fill: parent
-    width: parent.width
-    height: parent.height
+    width: swipeViewId.width
+    height: swipeViewId.height
     /*
     Component.onCompleted: {
         console.log("resultsPage onCompleted");

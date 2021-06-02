@@ -19,6 +19,8 @@ from PySide2.QtCore import QUrl, QObject, Slot, Signal
 from PySide2 import QtCore as qtc
 from PySide2 import QtGui as qtg
 
+from heatmap_images_matrix_table_model import HeatmapImagesMatrixTableModel
+
 # Maximum possible number of different models and
 # images that can be added inside of the app
 MAX_MODELS_NUM = 5
@@ -28,63 +30,11 @@ class_labels = {0: {'side':'side_left', 'cast':'no_cast', 'projection':'projecti
                 1: {'side':'side_right', 'cast':'cast', 'projection':'projection_lat', 'metal':'metal', 'osteopenia':'osteopenia', 'fracture':'fracture_one', 'fracture_binary':'fracture'},
                 2: {'fracture':'fracture_multiple'}}   
 class_labels_animals = {0: 'cane', 1:'cavallo', 2:'elefante', 3:'farfalla', 4:'gallina', 5:'gatto', 6:'mucca', 7:'pecora', 8:'ragno', 9:'scoiattolo'}
-       
-class TableModel(qtc.QAbstractTableModel):
-    NameRole = qtc.Qt.UserRole + 1000
-    ImageRole = qtc.Qt.UserRole + 1001
-    ImagePathRole = qtc.Qt.UserRole + 1002
-    ModelPathRole = qtc.Qt.UserRole + 1003
-    PredictedClassRole = qtc.Qt.UserRole + 1004
-    PredictionProbabilityRole = qtc.Qt.UserRole + 1005
-
-    def __init__(self, parent=None, *args):
-        super(TableModel, self).__init__()
-
-    def rowCount(self, parent=qtc.QModelIndex()):
-        return len(QmlFunctions.img_paths)
-
-    def columnCount(self, parent=qtc.QModelIndex()):
-        return len(QmlFunctions.model_paths)
-    
-    def data(self, index, role=Qt.DisplayRole):
-        i = index.row()
-        j = index.column()
-        if role == TableModel.NameRole: 
-            return '({0}, {1})'.format(i, j)
-        elif role == TableModel.ImageRole:
-            return QmlFunctions.heatmap_images_fnames_array[j-1][i-1]
-        elif role == TableModel.ImagePathRole:
-            return QmlFunctions.img_paths[i-1]
-        elif role == TableModel.ModelPathRole:
-            return QmlFunctions.model_paths[j-1]
-        elif role == TableModel.PredictedClassRole:
-            return QmlFunctions.predicted_class_array[j-1][i-1]
-        elif role == TableModel.PredictionProbabilityRole:
-            return QmlFunctions.prediction_probability_array[j-1][i-1]
-        else:
-            return QtCore.QVariant()
-
-    def roleNames(self):
-        roles = dict()
-        roles[TableModel.NameRole] = b'displayText'
-        roles[TableModel.ImageRole] = b'displayImage'
-        roles[TableModel.ImagePathRole] = b'imagePath'
-        roles[TableModel.ModelPathRole] = b'modelPath'
-        roles[TableModel.PredictedClassRole] = b'predictedClass'
-        roles[TableModel.PredictionProbabilityRole] = b'classProbability'
-        return roles
-
-    def flags(self, index):
-        return QtCore.Qt.ItemIsEnabled
-
-def determine_criterium_by_model_filename(model_filename):
-    criteriums = ['fracture_binary', 'fracture', 'metal', 'osteopenia', 'cast', 'side', 'projection', 'animals']
-    for crit in criteriums:
-        if crit in model_filename:
-            return crit
-    return -1
 
 class QmlFunctions(QObject):
+    def __init__(self, parent=None, *args):
+        super(QmlFunctions, self).__init__()
+
     model_paths = []
     img_paths = []
     heatmap_images_fnames_array = []
@@ -102,35 +52,10 @@ class QmlFunctions(QObject):
         dest_dir = dest_dir.replace('file:///', '')
         copy_tree('./heatmap_images/', dest_dir)
 
-#    @Slot(list, list, result=list)
-#    def loadNewModel(str, model_paths, img_paths):
-#        #print("loadNewModel func python")
-#        QmlFunctions.model_paths = model_paths
-#        QmlFunctions.img_paths = img_paths
-#        print(model_paths)
-#        print(img_paths)
-#
-#        QmlFunctions.heatmap_images_fnames_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
-#        QmlFunctions.predicted_class_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
-#        QmlFunctions.prediction_probability_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
-#
-#        for i, model in enumerate(model_paths):
-#            if model is None:
-#                continue
-#            elif model == '':
-#                continue
-#            for j, img in enumerate(img_paths):
-#                if img is None:
-#                    continue
-#                elif img == '':
-#                    continue
-#                QmlFunctions.heatmap_images_fnames_array[i][j] = img
-#                QmlFunctions.predicted_class_array[i][j] = 'predicted class example'
-#                QmlFunctions.prediction_probability_array[i][j] = 0.69
-#                
-#        return [QmlFunctions.heatmap_images_fnames_array, QmlFunctions.predicted_class_array, QmlFunctions.prediction_probability_array]
     @Slot(list, list, result=list)
     def loadNewModel(str, model_paths, img_paths):
+        from heatmap_images_matrix_table_model import determine_criterium_by_model_filename
+
         QmlFunctions.model_paths = list(filter(None, model_paths))
         QmlFunctions.img_paths = list(filter(None, img_paths))
         # Initialize None 2D arrays where wanted data will be stored and then return to QML file
@@ -196,8 +121,6 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
     context = engine.rootContext()
 
-    tablemodel = TableModel()
-    context.setContextProperty('tablemodel', tablemodel)
 
     context.setContextProperty("main", engine)
     engine.load(os.path.join(os.path.dirname(__file__), "main.qml"))
@@ -205,6 +128,8 @@ if __name__ == "__main__":
     qmlFunctions = QmlFunctions()
     context.setContextProperty("pyMainApp", qmlFunctions)
 
+    heatmapImagesTableModel = HeatmapImagesMatrixTableModel(qmlFunctions)
+    context.setContextProperty('heatmapImagesTableModel', heatmapImagesTableModel)
 
     if not engine.rootObjects():
         sys.exit(-1)
