@@ -35,7 +35,7 @@ Window {
     property var imageRowIndex: 0;
 
     onWidthChanged: {
-        resultsPageObject.resultsPageObjectModelProp.children[0].forceLayout();
+        resultsPageObject.resultsPageObjectModelProp.children[0].children[0].forceLayout();
     }
 
     Menu {

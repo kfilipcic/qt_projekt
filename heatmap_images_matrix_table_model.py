@@ -24,6 +24,13 @@ class HeatmapImagesMatrixTableModel(qtc.QAbstractTableModel):
 
     def columnCount(self, parent=qtc.QModelIndex()):
         return len(HeatmapImagesMatrixTableModel.qmlFunctions.model_paths)
+
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Orientation.Horizontal:
+            return "Model " + str(section+1)
+        elif orientation == Qt.Orientation.Vertical:
+            return "Image " + str(section+1)
+
     
     def data(self, index, role=Qt.DisplayRole):
         i = index.row()

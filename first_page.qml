@@ -254,17 +254,22 @@ Page {
                         predictionProbabilityArray = gradcamDataArray[2];
 
                         var resultsPageComponent = Qt.createComponent(qsTr("results_page.qml"));
+                        console.debug(resultsPageComponent.errorString());
                         resultsPageObject = resultsPageComponent.createObject();
 
                         var informationDockRectComponent = Qt.createComponent(qsTr("information_dock_rect.qml"));
+                        console.debug(informationDockRectComponent.errorString());
                         var informationDockRectObject = informationDockRectComponent.createObject();
                         resultsPageObject.resultsPageObjectModelProp.append(informationDockRectObject);
                         
                         var pageIndicatorComponent = Qt.createComponent(qsTr("page_indicator.qml"));
+                        console.debug(pageIndicatorComponent.errorString());
                         var pageIndicatorObject = pageIndicatorComponent.createObject();
                         resultsPageObject.resultsPageObjectModelProp.append(pageIndicatorObject);
 
-                        var tableViewComponent = Qt.createComponent(qsTr("table_view.qml"));
+                        var tableViewComponent = Qt.createComponent(qsTr("heatmap_images_table_view.qml"));
+                        console.debug(tableViewComponent.errorString());
+                        var pageIndicatorObject = pageIndicatorComponent.createObject();
                         var tableViewObject = tableViewComponent.createObject();
                         resultsPageObject.resultsPageObjectModelProp.insert(0, tableViewObject);
 

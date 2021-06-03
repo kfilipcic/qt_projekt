@@ -53,6 +53,34 @@ class QmlFunctions(QObject):
         copy_tree('./heatmap_images/', dest_dir)
 
     @Slot(list, list, result=list)
+    def loadNewModelTest(str, model_paths, img_paths):
+        #print("loadNewModel func python")
+        QmlFunctions.model_paths = model_paths
+        QmlFunctions.img_paths = img_paths
+        print(model_paths)
+        print(img_paths)
+
+        QmlFunctions.heatmap_images_fnames_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+        QmlFunctions.predicted_class_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+        QmlFunctions.prediction_probability_array = [[None for i in range(len(img_paths))] for j in range(len(model_paths))]
+
+        for i, model in enumerate(model_paths):
+            if model is None:
+                continue
+            elif model == '':
+                continue
+            for j, img in enumerate(img_paths):
+                if img is None:
+                    continue
+                elif img == '':
+                    continue
+                QmlFunctions.heatmap_images_fnames_array[i][j] = img
+                QmlFunctions.predicted_class_array[i][j] = 'predicted class example'
+                QmlFunctions.prediction_probability_array[i][j] = 0.69
+                
+        return [QmlFunctions.heatmap_images_fnames_array, QmlFunctions.predicted_class_array, QmlFunctions.prediction_probability_array]
+
+    @Slot(list, list, result=list)
     def loadNewModel(str, model_paths, img_paths):
         from heatmap_images_matrix_table_model import determine_criterium_by_model_filename
 

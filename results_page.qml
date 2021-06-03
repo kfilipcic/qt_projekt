@@ -8,16 +8,9 @@ import QtQml.Models 2.3
 Page {
     id: resultsPage
     property alias resultsPageObjectModelProp: objectModelRepeater.model
-    //anchors.fill: parent
-    width: swipeViewId.width
-    height: swipeViewId.height
-    /*
-    Component.onCompleted: {
-        console.log("resultsPage onCompleted");
-        window.show();
-        //resultsPageObjectModel.children[0].forceLayout();
-    }
-    */
+
+    width: parent.width
+    height: parent.height
     ColumnLayout {
         id: resultsPageColumnLayout
         width: parent.width
